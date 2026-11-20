@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyBro - Estudia fácil ESO</title>
+<style>
+*{box-sizing:border-box;font-family:Arial,sans-serif}
+body{margin:0;background:#0f172a;color:white;padding:16px}
+header{text-align:center;padding:20px 0}
+header h1{font-size:32px;margin:0}
+header h1 span{color:#a78bfa}
+header p{color:#cbd5e1}
+.card{background:#1e293b;border-radius:16px;padding:16px;margin-bottom:14px}
+h2{margin-top:0;font-size:19px}
+button{background:#8b5cf6;border:0;color:white;padding:12px 16px;border-radius:12px;font-weight:bold;width:100%;margin-top:8px;cursor:pointer}
+button.secondary{background:#334155}
+input,select,textarea{width:100%;padding:12px;border-radius:12px;border:0;margin-top:8px;background:#0f172a;color:white;outline:none}
+.flash{font-size:20px;text-align:center;padding:20px 0;min-height:90px}
+.pill{display:inline-block;background:#8b5cf6;padding:6px 12px;border-radius:20px;font-size:13px;margin:4px 2px}
+.result{font-size:20px;text-align:center;font-weight:bold;margin-top:10px}
+small{color:#94a3b8}
+</style>
+</head>
+<body>
+
+<header>
+<h1>📚 Study<span>Bro</span></h1>
+<p>Tu bro para estudiar en la ESO</p>
+<div>
+<span class="pill">1º ESO</span><span class="pill">2º ESO</span><span class="pill">3º ESO</span><span class="pill">4º ESO</span>
+</div>
+</header>
+
+<!-- RESUMEN -->
+<div class="card">
+<h2>📝 1. Resumidor rápido</h2>
+<p><small>Pega tu tema tocho y te lo dejo limpio y fácil.</small></p>
+<select id="asig">
+<option>Biología</option><option>Historia</option><option>Lengua</option><option>Matemáticas</option><option>Inglés</option><option>Física y Química</option>
+</select>
+<textarea id="texto" rows="4" placeholder="Pega aquí tu tema... Ej: La fotosíntesis es el proceso por el que las plantas..."></textarea>
+<button onclick="resumir()">✨ Hacer resumen</button>
+<div id="resumenOut"></div>
+</div>
+
+<!-- FLASHCARDS -->
+<div class="card">
+<h2>🃏 2. Flashcards</h2>
+<p><small>Toca la tarjeta para ver la respuesta.</small></p>
+<div class="flash" id="flashCard" onclick="girar()">¿Qué es la fotosíntesis?</div>
+<button class="secondary" onclick="girar()">🔄 Girar tarjeta</button>
+<button onclick="siguiente()">➡️ Siguiente tarjeta</button>
+</div>
+
+<!-- TEST -->
+<div class="card">
+<h2>✏️ 3. Mini Test ESO</h2>
+<p><b id="pregunta">¿Cuál es la capital de España?</b></p>
+<button class="secondary" onclick="responder(this,'Madrid')">Madrid</button>
+<button class="secondary" onclick="responder(this,'Barcelona')">Barcelona</button>
+<button class="secondary" onclick="responder(this,'Valencia')">Valencia</button>
+<div class="result" id="notaTest">Aciertos: 0 / 0</div>
+<button onclick="siguientePregunta()">Siguiente pregunta ➡️</button>
+</div>
+
+<!-- PLAN -->
+<div class="card">
+<h2>📅 4. Plan de estudio</h2>
+<input id="examen" type="text" placeholder="¿Qué examen tienes? Ej: Historia">
+<input id="dias" type="number" placeholder="¿En cuántos días? Ej: 3">
+<button onclick="hacerPlan()">📅 Crear mi plan</button>
+<div id="planOut"></div>
+</div>
+
+<p style="text-align:center"><small>Hecho por StudyBro-IA- para estudiantes de ESO ❤️</small></p>
+
+<script>
+function resumir(){
+let t=document.getElementById('texto').value;
+let a=document.getElementById('asig').value;
+if(!t){alert('Pega primero tu tema bro');return;}
+let frases=t.split('.').filter(x=>x.trim().length>5);
+let resumen=frases.slice(0,3).join('. ') + '.';
+document.getElementById('resumenOut').innerHTML=`<hr><b>📌 Resumen de ${a}:</b><br><br>${resumen}<br><br>✅ <b>Idea clave:</b> ${frases[0]}<br>✅ <b>Recuerda esto para el examen.</b>`;
+}
+let cards=[
+["¿Qué es la fotosíntesis?","Proceso por el que las plantas crean su alimento con luz, agua y CO2"],
+["¿Cuánto es 12 x 8?","96"],
+["¿Quién escribió el Quijote?","Miguel de Cervantes"],
+["¿Qué es un verbo?","Palabra que expresa acción, estado o proceso"],
+["What is 'casa' in English?","House"],
+["¿Cuál es la fórmula del agua?","H2O"]
+];
+let ci=0, girada=false;
+function girar(){
+girada=!girada;
+document.getElementById('flashCard').innerText=girada?cards[ci][1]:cards[ci][0];
+}
+function siguiente(){
+ci=(ci+1)%cards.length; girada=false;
+document.getElementById('flashCard').innerText=cards[ci][0];
+}
+let preguntas=[
+["¿Cuál es la capital de España?","Madrid",["Madrid","Barcelona","Valencia"]],
+["¿Cuánto es 15 + 15?","30",["20","30","35"]],
+["¿Cuál es el planeta más cercano al Sol?","Mercurio",["Venus","Mercurio","Marte"]],
+["¿Qué idioma se habla en Brasil?","Portugués",["Español","Portugués","Francés"]]
+];
+let pi=0, aciertos=0, total=0;
+function siguientePregunta(){
+pi=(pi+1)%preguntas.length;
+let p=preguntas[pi];
+document.getElementById('pregunta').innerText=p[0];
+let btns=document.querySelectorAll('#pregunta ~ button.secondary');
+btns.forEach((b,i)=>b.innerText=p[2][i]);
+}
+function responder(btn,resp){
+total++;
+let correcta=preguntas[pi][1];
+if(resp===correcta){aciertos++; alert('¡Bien bro! ✅');}else{alert('Fallaste, era: '+correcta+' ❌');}
+document.getElementById('notaTest').innerText=`Aciertos: ${aciertos} / ${total}`;
+}
+function hacerPlan(){
+let ex=document.getElementById('examen').value||'tu examen';
+let d=parseInt(document.getElementById('dias').value)||3;
+let html=`<hr><b>Tu plan para ${ex} en ${d} días:</b><br><br>`;
+for(let i=1;i<=d;i++){html+=`📚 <b>Día ${i}:</b> Estudia una parte de ${ex} + repasa con flashcards (20 min)<br>`;}
+html+=`<br>🔥 <b>Último día:</b> Haz el mini test de esta app.`;
+document.getElementById('planOut').innerHTML=html;
+}
+</script>
+</body>
+</html>
